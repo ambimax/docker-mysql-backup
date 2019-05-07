@@ -13,7 +13,7 @@ tag-latest:
 	docker tag ${IMG} ${LATEST}
 
 start:
-	(cd tests && docker-compose up)
+	(cd tests && docker-compose up -d)
 
 stop:
 	(cd tests && docker-compose down -v)
