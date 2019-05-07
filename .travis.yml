@@ -1,0 +1,44 @@
+sudo: required
+services: docker
+
+env:
+  global:
+    - secure: "cXCoHN0jebqHm4RdDfp4URtDhotwqMT+c7XPghOz/DfQwg6ylez+BqNF7It/MMBLABMhmh4xO0PD8WnAUE5IRa7fsORHJJ1tGxGVwU8Yj/J88McM5bZefmBgndkLx3e/oeIjwZfIB/Lt8xZjDmrmsKdmLrAZ7uSgJBb43t2h8PNxdaJmhmHUf08z444saZk2NR/aZWBD5nje0valkbK755GLi/3XWnRXrn6VBpTLQOp/FgWVMGN1jEyu/15ZY/skK9rE9oRWTtVddAx6xDB54lPBe2WIC8ozETxRWlbx1m0cdb5ssIdxhE2tIJlX+evyHxRUwSe5A0dftenV2fuk4MJgofJ7rdHtD66nXU6jIs/390dY9YNUw30ipLV2Ko8dnVoEKW7V5Ti7wbWhCYpLelyKLK1Hq89xCTCW0Gnr8ovEkdMekIRAz8vPeELPVQAwRt9yCuJS8OXngDiiwJc1jOZKsHBpdHfvmkjZJvzOtV32hEjuFN4xksNELk/X7Bd9N/Zw465ojfyK1Bid1S508ri9Ks9a4Y9joU5drp1rX/hlYJA1uonF8pH4ehZtKPwEPQaum1evIgR0ojkyEqRqCFWSRzcym3n9MDZFDVDSXP2JkCBiShmzem03ek30Mz98bOgIdhDykTBDfgn6Uj8McL+0aJjaPBUOqd0RvA6RUPg="
+    - secure: "IgQs1n+IqJmmejOgGB9kDlq0F1bqtbw5t1UTO+uE1b/kEq4gI/Qrk8iG2SYe1n6Vs9q7zuB0/xrk2PxNvSdTiuofutx3ah5tWfO6J1iGxSJ1tPbCtspbkhM2ySJExv+VEditG4JNHfU4r67ylHQenCA1/oGed6ws6RfW8AvLjd+dOp0wPlrJh45b76Xj2+fERrCvK45BhBaPEe0Bm0w5Z5DeQZB1hkFYJ3ujYkeiYnx0jL8aGIst20eTHzQMp7uev7DHc9WALUYfiH+tYElmTmhZN3pLZcu1XXtd4ChOweV0cMgUq8SynHjZrBmuY761YRBTwp1fTOumsjH8jHtmFF49sxP9VgUBAJx3tEmDc9WfPuM3zdyIYEdVQ/eEG2vG0JvwiorFzCgS7SOigTlhoj88oHtT6QZUez7m91zqrDHHeHHEMJLm+B47qdUv4OSDWIjRuK+abBp5SD2qvS4rbowFQvAqD2VoVCXxWRQvNcQNcgotKh0bwXK80RwwM5iHsd2TBjXHon0YnBGP0ByUI+Snjv3CWdk5nMq7lDdWgojI/pqjumsCW3V9QDKvj8tkNd1lAcAPJM5lvWN+IkHoeCp0TTSVGmmLYlil0Lm+A/oiBoV/0Vd5N9YDaAsLWvJBlvmuL49220YrxTHpVeiVq0D0dpxRx1MhvOcv+WZPpxM="
+
+before_script:
+  - cd "$VARIANT"
+
+script:
+  # Build image
+  - make build
+
+  # Start image
+  - make start
+
+  # Wait for all actions
+  - sleep 60
+
+  # Test results
+  - test -e tests/tmp/full-backup/menagerie.sql.gz
+  - test -e tests/tmp/full-backup/test.sql.gz
+  - test -e tests/tmp/full-backup/world.sql.gz
+
+  - test -e tests/tmp/full-backup-with-excluded/menagerie.sql.gz
+#  - ! test -e tests/tmp/full-backup-with-excluded/test.sql.gz
+  - test -e tests/tmp/full-backup-with-excluded/world.sql.gz
+
+  - test -e tests/tmp/single-database/test.sql.gz
+  - test -e tests/tmp/single-database-cron/test.sql.gz
+
+after_script:
+  - docker images
+
+before_deploy:
+  - make login
+
+deploy:
+  provider: script
+  script: make push
+  on:
+    branch: master
