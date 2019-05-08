@@ -1,0 +1,65 @@
+version: '3.5'
+services:
+
+  db:
+    image: mariadb:10.2
+    volumes:
+      - db-data:/var/lib/mysql:delegated
+      - "${PWD}/database.sql.gz:/docker-entrypoint-initdb.d/database.sql.gz:delegated"
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_DATABASE=test
+      - MYSQL_USER=test
+      - MYSQL_PASSWORD=strongPassword
+    networks:
+      - backend
+
+  mysql-backup-full-backup:
+    image: ambimax/mysql-backup:latest
+    environment:
+      - MYSQL_USER=root
+      - MYSQL_PASSWORD=root
+    volumes:
+      - "${PWD}/tmp/full-backup:/tmp"
+    networks:
+      - backend
+
+  mysql-backup-full-backup-with-excluded:
+    image: ambimax/mysql-backup:latest
+    environment:
+      - MYSQL_USER=root
+      - MYSQL_PASSWORD=root
+      - EXCLUDED_DATABASES=test,performance_schema,information_schema
+    volumes:
+      - "${PWD}/tmp/full-backup-with-excluded:/tmp"
+    networks:
+      - backend
+
+  mysql-backup-single-database:
+    image: ambimax/mysql-backup:latest
+    environment:
+      - MYSQL_USER=root
+      - MYSQL_PASSWORD=root
+      - MYSQLDUMP_DATABASE=test
+    volumes:
+      - "${PWD}/tmp/single-database:/tmp"
+    networks:
+      - backend
+
+  mysql-backup-single-database-cron:
+    image: ambimax/mysql-backup:latest
+    environment:
+      - MYSQL_USER=root
+      - MYSQL_PASSWORD=root
+      - MYSQLDUMP_DATABASE=test
+      - CRON_SCHEDULE=* * * * *
+    volumes:
+      - "${PWD}/tmp/single-database-cron:/tmp"
+    networks:
+      - backend
+
+volumes:
+  db-data:
+
+networks:
+  backend:
