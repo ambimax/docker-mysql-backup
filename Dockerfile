@@ -24,7 +24,8 @@ RUN apk update; apk add \
 COPY --from=builder /go/src/github.com/odise/go-cron/go-cron /usr/local/bin
 
 ENV MYSQLDUMP_OPTIONS --quote-names --quick --add-drop-table --add-locks --allow-keywords --disable-keys --extended-insert --single-transaction --create-options --comments --net_buffer_length=16384
-ENV MYSQLDUMP_DATABASE --all-databases
+ENV MYSQLDUMP_DATABASE ""
+ENV EXCLUDED_DATABASES "(Database|information_schema|performance_schema|mysql|sys|innodb)"
 ENV MYSQL_HOST db
 ENV MYSQL_PORT 3306
 ENV MYSQL_USER root
@@ -35,12 +36,8 @@ ENV S3_SECRET_ACCESS_KEY ""
 ENV S3_BUCKET ""
 ENV S3_REGION eu-central-1
 
-ENV MYSQLDUMP_DATABASE ""
-ENV EXCLUDED_DATABASES information_schema
-ENV COMPRESSION gzip
-ENV BACKUPDIR /var/backup
-
 ENV CRON_SCHEDULE ""
+ENV SLEEP_ON_STARTUP 10s
 
 COPY automysqlbackup.sh /usr/local/bin/automysqlbackup
 COPY entrypoint.sh /usr/local/bin/entrypoint.sh

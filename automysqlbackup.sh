@@ -4,16 +4,6 @@ set -e
 
 PATH=/usr/local/bin:/usr/bin:/bin:/usr/local/mysql/bin
 DATE=`date +%Y-%m-%d_%Hh%Mm`	# Datestamp e.g 2002-09-21
-LOGFILE=/dev/stdout				# Logfile Name
-LOGERR=/dev/stderr				# Logfile Name
-
-# IO redirection for logging.
-exec 6>&1           # Link file descriptor #6 with stdout.
-                    # Saves stdout.
-exec > $LOGFILE     # stdout replaced with file $LOGFILE.
-exec 7>&2           # Link file descriptor #7 with stderr.
-                    # Saves stderr.
-exec 2> $LOGERR     # stderr replaced with file $LOGERR.
 
 copy_s3 () {
   SRC_FILE=$1
@@ -41,15 +31,16 @@ copy_s3 () {
 MYSQL_HOST_OPTS="-h $MYSQL_HOST -P $MYSQL_PORT -u$MYSQL_USER -p$MYSQL_PASSWORD"
 
 if [ -z "${MYSQLDUMP_DATABASE}" ]; then
-	DATABASES=`mysql $MYSQL_HOST_OPTS -e "SHOW DATABASES;" | grep -Ev "(Database|information_schema|performance_schema|mysql|sys|innodb)"`
-else
-	DATABASES=$MYSQLDUMP_DATABASE
+	MYSQLDUMP_DATABASE=`mysql $MYSQL_HOST_OPTS -e "SHOW DATABASES;" | grep -Ev "${EXCLUDED_DATABASES}"`
+	echo "List of database - $EXCLUDED_DATABASES:"
+	echo "$MYSQLDUMP_DATABASE"
 fi
 
-for DB in $DATABASES; do
+
+for DB in $MYSQLDUMP_DATABASE; do
 	echo "Creating individual dump of ${DB} from ${MYSQL_HOST}..."
 
-	DUMP_FILE="/tmp/${DB}.sql.gz"
+	DUMP_FILE="/tmp/${DB:-full}.sql.gz"
 
 	mysqldump $MYSQL_HOST_OPTS $MYSQLDUMP_OPTIONS --databases $DB | gzip > $DUMP_FILE
 
@@ -59,7 +50,3 @@ for DB in $DATABASES; do
 
 	copy_s3 $DUMP_FILE $S3_FILE
 done
-
-#Clean up IO redirection
-exec 1>&6 6>&-      # Restore stdout and close file descriptor #6.
-exec 1>&7 7>&-      # Restore stdout and close file descriptor #7.

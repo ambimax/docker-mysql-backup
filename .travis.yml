@@ -20,22 +20,31 @@ script:
   # Start image
   - make start
 
-  # Wait for all actions
-  - sleep 60
+  ### Test results
 
-  # Test results
+  # Full backup
   - test -e tests/tmp/full-backup/menagerie.sql.gz
   - test -e tests/tmp/full-backup/test.sql.gz
   - test -e tests/tmp/full-backup/world.sql.gz
 
+  # Full backup with excluded database
   - test -e tests/tmp/full-backup-with-excluded/menagerie.sql.gz
-#  - ! test -e tests/tmp/full-backup-with-excluded/test.sql.gz
   - test -e tests/tmp/full-backup-with-excluded/world.sql.gz
+  - ! test -e tests/tmp/full-backup-with-excluded/test.sql.gz
+  - ! test -e tests/tmp/full-backup-with-excluded/mysql.sql.gz
+  - ! test -e tests/tmp/full-backup-with-excluded/information_schema.sql.gz
+  - ! test -e tests/tmp/full-backup-with-excluded/performance_schema.sql.gz
 
+  # Single databases
   - test -e tests/tmp/single-database/test.sql.gz
+  - test -e tests/tmp/single-database-non-root/test.sql.gz
+
+  # Test cron results
+  - sleep 70
   - test -e tests/tmp/single-database-cron/test.sql.gz
 
 after_script:
+  - docker-compose logs
   - docker images
 
 before_deploy:
