@@ -78,7 +78,7 @@ services:
       - MYSQL_USER=root
       - MYSQL_PASSWORD=uDpk3DkV8m
       - MYSQLDUMP_DATABASE=test
-      - CRON_SCHEDULE=0 * * * *
+      - CRON_SCHEDULE=* * * * *
     volumes:
       - "${PWD}/tmp/single-database-cron:/tmp"
     networks:
