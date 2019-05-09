@@ -33,10 +33,10 @@ script:
   # Full backup with excluded database
   - test -f tests/tmp/full-backup-with-excluded/menagerie.sql.gz
   - test -f tests/tmp/full-backup-with-excluded/world.sql.gz
-  - [ ! -f tests/tmp/full-backup-with-excluded/test.sql.gz ]
-  - [ ! -f tests/tmp/full-backup-with-excluded/mysql.sql.gz ]
-  - [ ! -f tests/tmp/full-backup-with-excluded/information_schema.sql.gz ]
-  - [ ! -f tests/tmp/full-backup-with-excluded/performance_schema.sql.gz ]
+  - [ ! -f tests/tmp/full-backup-with-excluded/test.sql.gz ];
+  - [ ! -f tests/tmp/full-backup-with-excluded/mysql.sql.gz ];
+  - [ ! -f tests/tmp/full-backup-with-excluded/information_schema.sql.gz ];
+  - [ ! -f tests/tmp/full-backup-with-excluded/performance_schema.sql.gz ];
 
   # Single databases
   - test -f tests/tmp/single-database/test.sql.gz

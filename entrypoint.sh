@@ -53,8 +53,7 @@ fi
 
 
 if [ ! -z $SLEEP_ON_STARTUP ]; then
-
-	echo sleep $SLEEP_ON_STARTUP
+	echo "sleep $SLEEP_ON_STARTUP"
 	sleep $SLEEP_ON_STARTUP
 fi
 
