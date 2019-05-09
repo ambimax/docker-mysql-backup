@@ -20,6 +20,9 @@ script:
   # Start image
   - make start
 
+  # Wait for all backups to be done (even cron)
+  - sleep 70
+
   ### Test results
 
   # Full backup
@@ -40,7 +43,6 @@ script:
   - test -e tests/tmp/single-database-non-root/test.sql.gz
 
   # Test cron results
-  - sleep 70
   - test -e tests/tmp/single-database-cron/test.sql.gz
 
 after_script:
