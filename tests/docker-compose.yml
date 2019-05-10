@@ -7,7 +7,7 @@ services:
       - db-data:/var/lib/mysql:delegated
       - "${PWD}/database.sql.gz:/docker-entrypoint-initdb.d/database.sql.gz:delegated"
     environment:
-      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_ROOT_PASSWORD=uDpk3DkV8m
       - MYSQL_DATABASE=test
       - MYSQL_USER=test
       - MYSQL_PASSWORD=strongPassword
@@ -18,7 +18,7 @@ services:
     image: ambimax/mysql-backup:latest
     environment:
       - MYSQL_USER=root
-      - MYSQL_PASSWORD=root
+      - MYSQL_PASSWORD=uDpk3DkV8m
     volumes:
       - "${PWD}/tmp/full-backup:/tmp"
     networks:
@@ -28,8 +28,8 @@ services:
     image: ambimax/mysql-backup:latest
     environment:
       - MYSQL_USER=root
-      - MYSQL_PASSWORD=root
-      - EXCLUDED_DATABASES=test,performance_schema,information_schema
+      - MYSQL_PASSWORD=uDpk3DkV8m
+      - EXCLUDED_DATABASES=(test|Database|information_schema|performance_schema|mysql|sys|innodb)
     volumes:
       - "${PWD}/tmp/full-backup-with-excluded:/tmp"
     networks:
@@ -39,10 +39,36 @@ services:
     image: ambimax/mysql-backup:latest
     environment:
       - MYSQL_USER=root
-      - MYSQL_PASSWORD=root
+      - MYSQL_PASSWORD=uDpk3DkV8m
       - MYSQLDUMP_DATABASE=test
     volumes:
       - "${PWD}/tmp/single-database:/tmp"
+    networks:
+      - backend
+
+  mysql-backup-single-database-with-secrets:
+    image: ambimax/mysql-backup:latest
+#    secrets:
+#      - db_root_user
+#      - db_root_password
+    environment:
+      - MYSQL_USER_FILE=/run/secrets/db_root_user
+      - MYSQL_PASSWORD_FILE=/run/secrets/db_root_password
+      - MYSQLDUMP_DATABASE=test
+    volumes:
+      - "${PWD}/tmp/single-database:/tmp"
+      - "${PWD}/secrets:/run/secrets"
+    networks:
+      - backend
+
+  mysql-backup-single-database-non-root:
+    image: ambimax/mysql-backup:latest
+    environment:
+      - MYSQL_USER=test
+      - MYSQL_PASSWORD=strongPassword
+      - MYSQLDUMP_DATABASE=test
+    volumes:
+      - "${PWD}/tmp/single-database-non-root:/tmp"
     networks:
       - backend
 
@@ -50,7 +76,7 @@ services:
     image: ambimax/mysql-backup:latest
     environment:
       - MYSQL_USER=root
-      - MYSQL_PASSWORD=root
+      - MYSQL_PASSWORD=uDpk3DkV8m
       - MYSQLDUMP_DATABASE=test
       - CRON_SCHEDULE=* * * * *
     volumes:
@@ -63,3 +89,9 @@ volumes:
 
 networks:
   backend:
+
+#secrets:
+#  db_root_user:
+#    external: true
+#  db_root_password:
+#    external: true

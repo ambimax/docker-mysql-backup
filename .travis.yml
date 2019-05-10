@@ -20,23 +20,36 @@ script:
   # Start image
   - make start
 
-  # Wait for all actions
-  - sleep 60
+  # Wait for all backups to be done (even cron)
+  - sleep 90
 
-  # Test results
-  - test -e tests/tmp/full-backup/menagerie.sql.gz
-  - test -e tests/tmp/full-backup/test.sql.gz
-  - test -e tests/tmp/full-backup/world.sql.gz
+  ### Test results
 
-  - test -e tests/tmp/full-backup-with-excluded/menagerie.sql.gz
-#  - ! test -e tests/tmp/full-backup-with-excluded/test.sql.gz
-  - test -e tests/tmp/full-backup-with-excluded/world.sql.gz
+  # Full backup
+  - test -f tests/tmp/full-backup/menagerie.sql.gz
+  - test -f tests/tmp/full-backup/test.sql.gz
+  - test -f tests/tmp/full-backup/world.sql.gz
 
-  - test -e tests/tmp/single-database/test.sql.gz
-  - test -e tests/tmp/single-database-cron/test.sql.gz
+  # Full backup with excluded database
+  - test -f tests/tmp/full-backup-with-excluded/menagerie.sql.gz
+  - test -f tests/tmp/full-backup-with-excluded/world.sql.gz
+  - test ! -f tests/tmp/full-backup-with-excluded/test.sql.gz
+  - test ! -f tests/tmp/full-backup-with-excluded/mysql.sql.gz
+  - test ! -f tests/tmp/full-backup-with-excluded/information_schema.sql.gz
+  - test ! -f tests/tmp/full-backup-with-excluded/performance_schema.sql.gz
+
+  # Single databases
+  - test -f tests/tmp/single-database/test.sql.gz
+  - test -f tests/tmp/single-database-non-root/test.sql.gz
+
+  # Test cron results
+  - if [ ! -f tests/tmp/single-database-cron/test.sql.gz ]; then sleep 45; fi
+  - test -f tests/tmp/single-database-cron/test.sql.gz
 
 after_script:
+  - (cd tests && docker-compose logs)
   - docker images
+  - ls -la tests/tmp/*/
 
 before_deploy:
   - make login
