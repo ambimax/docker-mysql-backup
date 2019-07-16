@@ -98,6 +98,14 @@ S3_ACCESS_KEY_ID=***********
 S3_SECRET_ACCESS_KEY=**************
 ```
 
+### Cron schedule
+
+For setting periodic backups
+
+```
+CRON_SCHEDULE=0 5 * * *
+```
+
 ### Secrets (docker swarm)
 
 For secret usage all variables can be appended with _FILE and a stored value will be used:
