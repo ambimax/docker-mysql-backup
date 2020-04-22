@@ -40,6 +40,7 @@ ENV CRON_SCHEDULE ""
 ENV SLEEP_ON_STARTUP 10s
 
 COPY automysqlbackup.sh /usr/local/bin/automysqlbackup
+COPY restoreBackup.sh /usr/local/bin/restoreBackup
 COPY entrypoint.sh /usr/local/bin/entrypoint.sh
 
 RUN chmod +x /usr/local/bin/go-cron \

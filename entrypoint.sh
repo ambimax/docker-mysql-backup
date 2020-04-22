@@ -17,6 +17,10 @@ if [ ! -z $MYSQL_PORT_FILE ]; then
 	export MYSQL_PORT=$(cat "${MYSQL_PORT_FILE}")
 fi
 
+if [ ! -z $MYSQL_DATABASE_FILE ]; then
+	export MYSQL_DATABASE=$(cat "${MYSQL_DATABASE_FILE}")
+fi
+
 # AWS settings
 if [ ! -z $S3_BUCKET_FILE ]; then
 	export S3_BUCKET=$(cat "${S3_BUCKET_FILE}")
@@ -35,6 +39,10 @@ if [ ! -z $S3_REGION_FILE ]; then
 fi
 
 # Backup settings
+if [ ! -z $RESTORE_BACKUP_FILE ]; then
+	export RESTORE_BACKUP=$(cat "${RESTORE_BACKUP_FILE}")
+fi
+
 if [ ! -z $MYSQLDUMP_DATABASE_FILE ]; then
 	export MYSQLDUMP_DATABASE=$(cat "${MYSQLDUMP_DATABASE_FILE}")
 fi
@@ -71,9 +79,12 @@ while ! mysql --protocol TCP -h $MYSQL_HOST -P $MYSQL_PORT -u"$MYSQL_USER" -p"$M
         exit 1
     fi;
 done
-
-if [ "${CRON_SCHEDULE}" ]; then
-    exec /usr/local/bin/go-cron -s "0 ${CRON_SCHEDULE}" -- /usr/local/bin/automysqlbackup
+if [ "${RESTORE_BACKUP}" ]; then
+  exec /usr/local/bin/restoreBackup
 else
-    exec /usr/local/bin/automysqlbackup
+    if [ "${CRON_SCHEDULE}" ]; then
+        exec /usr/local/bin/go-cron -s "0 ${CRON_SCHEDULE}" -- /usr/local/bin/automysqlbackup
+    else
+        exec /usr/local/bin/automysqlbackup
+    fi
 fi
