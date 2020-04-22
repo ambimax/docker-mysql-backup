@@ -33,6 +33,3 @@ DEST_FILE="/tmp/${SRC_FILE}"
 copy_s3 ${SRC_FILE} ${DEST_FILE}
 
 gunzip < ${DEST_FILE} | mysql ${MYSQL_HOST_OPTS}
-
-
-
