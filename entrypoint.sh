@@ -79,7 +79,7 @@ while ! mysql --protocol TCP -h $MYSQL_HOST -P $MYSQL_PORT -u"$MYSQL_USER" -p"$M
         exit 1
     fi;
 done
-if [ "${RESTORE_BACKUP}" ]; then
+if [ "${RESTORE_BACKUP}" -eq "1" ]; then
   exec /usr/local/bin/restoreBackup
 else
     if [ "${CRON_SCHEDULE}" ]; then

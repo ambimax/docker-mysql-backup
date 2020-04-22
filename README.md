@@ -1,6 +1,6 @@
 # Docker MySQL Backup
 
-Container for periodic backups to s3 storage
+Container for periodic backups and restore from/to s3 storage
 
 ## Usage
 
@@ -105,7 +105,11 @@ For setting periodic backups
 ```
 CRON_SCHEDULE=0 5 * * *
 ```
-
+### Restore Database
+```
+RESTORE_BACKUP=1
+MYSQL_DATABASE=db_name
+```
 ### Secrets (docker swarm)
 
 For secret usage all variables can be appended with _FILE and a stored value will be used:
